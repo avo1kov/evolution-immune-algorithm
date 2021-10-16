@@ -1,17 +1,17 @@
 function renderGraph(graph, solution) {
-    var svg = d3.select("svg"),
+    const svg = d3.select("svg"),
         width = window.innerWidth,
         height = window.innerHeight - 100;
 
-    var color = d3.scaleOrdinal(d3.schemeCategory20);
+    const color = d3.scaleOrdinal(d3.schemeCategory20);
 
-    var simulation = d3.forceSimulation()
+    const simulation = d3.forceSimulation()
         .force("link", d3.forceLink().id(function(d) { return d.id; }).distance(30).strength(1))
         .force("charge", d3.forceManyBody())
         .force('collide', d3.forceCollide(50))
         .force("center", d3.forceCenter(width / 2, height / 2));
 
-    var link = svg.append("g")
+    const link = svg.append("g")
         .attr("class", "links")
         .selectAll("line")
         .data(graph.links)
@@ -24,7 +24,7 @@ function renderGraph(graph, solution) {
             return 'gray';
         });
 
-    var node = svg.append("g")
+    const node = svg.append("g")
         .attr("class", "nodes")
         .selectAll("g")
         .data(graph.nodes)
@@ -33,7 +33,7 @@ function renderGraph(graph, solution) {
     node.append("circle")
         .attr("r", 5);
 
-    var drag_handler = d3.drag()
+    const drag_handler = d3.drag()
         .on("start", dragstarted)
         .on("drag", dragged)
         .on("end", dragended);
@@ -104,13 +104,13 @@ function getPositiveBitsAmount(arr) {
 }
 
 function generate_antibodies(population, edges_num) {
-    var antibodies = [];
+    const antibodies = [];
 
-    for (var i = 0; i < population; i++) {
-        var antibody = (new Array(edges_num)).fill('0');
-        var onesAmount = Math.round(Math.random() * (edges_num - 1) + 1);
+    for (let i = 0; i < population; i++) {
+        const antibody = (new Array(edges_num)).fill('0');
+        const onesAmount = Math.round(Math.random() * (edges_num - 1) + 1);
         while (getPositiveBitsAmount(antibody) < onesAmount) {
-            var index = Math.floor(Math.random() * edges_num);
+            const index = Math.floor(Math.random() * edges_num);
             antibody[index] = '1';
         }
         antibodies.push(antibody);
@@ -120,15 +120,15 @@ function generate_antibodies(population, edges_num) {
 }
 
 function get_cost(graph, antibody) {
-    var edges = [...graph.links];
-    var nodes = [...graph.nodes];
-    var visitedVertexes = new Set();
-    var usedEdgesAmount = 0;
+    const edges = [...graph.links];
+    const nodes = [...graph.nodes];
+    const visitedVertexes = new Set();
+    let usedEdgesAmount = 0;
 
-    for (var [i, e] of antibody.entries()) {
+    for (let [i, e] of antibody.entries()) {
         if (e === '1') {
             usedEdgesAmount += 1;
-            var {source, target} = edges[i];
+            const {source, target} = edges[i];
             visitedVertexes.add(target);
             visitedVertexes.add(source);
         }
@@ -157,31 +157,28 @@ function argsort(array) {
 }
 
 function select_antibodies(graph, antibodies, pop_total) {
-    var cluster = {};
-    var edges = [...graph.links];
-    for (var i = 0; i < edges.length + 2; i++) {
+    let cluster = {};
+    const edges = [...graph.links];
+    for (let i = 0; i < edges.length + 2; i++) {
         cluster[i] = [];
     }
 
-    var antibodies_costs = [];
-
     for (var [i, a] of antibodies.entries()) {
-        const {cost, used_edges} = get_cost(graph, a);
-        antibodies_costs.push([cost, used_edges]);
+        const {cost} = get_cost(graph, a);
         cluster[cost].push(i);
     }
 
-    var new_cluster = {};
+    const new_cluster = {};
     for (const cost in cluster) {
         if (cluster[cost].length > 0) {
-            var score = [];
-            for (var i of cluster[cost]) {
+            const score = [];
+            for (let i of cluster[cost]) {
                 score.push(antibodies[i].filter(a => a === '1').length);
             }
             
-            var sorted_index = argsort(score);
+            const sorted_index = argsort(score);
             
-            var output_lst = [];
+            const output_lst = [];
             for (let i = 0; i < cluster[cost].length; i++) {
                 output_lst.push(cluster[cost][sorted_index[i]]);
             }
@@ -191,8 +188,8 @@ function select_antibodies(graph, antibodies, pop_total) {
     }
     cluster = new_cluster;
         
-    var sorted_antibodies = [];
-    for (var cost in cluster) {
+    let sorted_antibodies = [];
+    for (let cost in cluster) {
         sorted_antibodies = [...sorted_antibodies, ...cluster[cost].map((x) => antibodies[x])];
         if (sorted_antibodies.length > pop_total) {
             break;
@@ -204,29 +201,25 @@ function select_antibodies(graph, antibodies, pop_total) {
 
 function shuffle(array) {
     let currentIndex = array.length,  randomIndex;
-  
-    // While there remain elements to shuffle...
+
     while (currentIndex != 0) {
-  
-      // Pick a remaining element...
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-  
-      // And swap it with the current element.
-      [array[currentIndex], array[randomIndex]] = [
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+
+        [array[currentIndex], array[randomIndex]] = [
         array[randomIndex], array[currentIndex]];
     }
- 
+
     return array;
 } 
 
 function clone_and_mutate(graph, antibodies, mutat_prob) {
-    var edges = [...graph.links];
-    var antibodies_len = antibodies.length;
+    const edges = [...graph.links];
+    const antibodies_len = antibodies.length;
     for (const [i, a] of antibodies.entries()) {
         for (let j = 0; j < antibodies_len - i; j++) {
-            var clone = [...antibodies[i]];
-            var mut_array = new Array(edges.length + 1)
+            const clone = [...antibodies[i]];
+            let mut_array = new Array(edges.length + 1)
                 .join('0')
                 .split('')
                 .map(
@@ -270,7 +263,7 @@ function mfind(G, mutat_prob, pop_init, pop_total, max_iterate) {
 }
 
 function generateTree(nodesAmount) {
-    var graph = {"nodes": [], "links": []};
+    const graph = {"nodes": [], "links": []};
 
     for (var i = 0; i < nodesAmount; i++) {
         graph.nodes.push({"id": i.toString(), "group": 1});
@@ -284,7 +277,7 @@ function generateTree(nodesAmount) {
         for (let i = 0; i < roots.length; i++) {
             const root = roots[i];
             const childsCount = Math.round(Math.random() * 2) + 1;
-            for (var j = 0; j < childsCount; j++) {
+            for (let j = 0; j < childsCount; j++) {
                 let target = 0;
                 while (usedNodes.includes(target) && target < nodesAmount) {
                     target++;
@@ -364,5 +357,4 @@ function recalculate() {
 start();
 
 regenerateButton.addEventListener('click', restart);
-
 recalculateButton.addEventListener('click', recalculate);

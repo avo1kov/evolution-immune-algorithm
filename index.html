@@ -13,7 +13,7 @@
         <h3>Set options for algorithm</h3>
         <div class="option">
             Count of nodes:
-            <input type="number" id="nodes-count" placeholder="14"/>
+            <input type="number" id="nodes-count" placeholder="14" min="2" />
         </div>
         <button id="regen-button" class="regen-btn">
             Regenerate Graph
@@ -22,19 +22,19 @@
 
         <div class="option">
             Probability of mutation:
-            <input type="number" id="mutat-prob" placeholder="0.2" step="0.01"/>
+            <input type="number" id="mutat-prob" placeholder="0.2" step="0.01" min="0" max="1" />
         </div>
         <div class="option">
             Initial population:
-            <input type="number" id="pop-init" placeholder="10" step="10"/>
+            <input type="number" id="pop-init" placeholder="10" step="10" min="1"/>
         </div>
         <div class="option">
             Max. population:
-            <input type="number" id="pop-total" placeholder="10" step="10"/>
+            <input type="number" id="pop-total" placeholder="10" step="10" min="1" />
         </div>
         <div class="option">
             Max. iterations:
-            <input type="number" id="max-iterate" placeholder="50" step="100"/>
+            <input type="number" id="max-iterate" placeholder="50" step="100" min="1" />
         </div>
         <button id="recalc-button">
             Recalculate
